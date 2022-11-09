@@ -1,5 +1,5 @@
-import { CardSuit, CardName } from "./model";
+import { CardSuit, CardName } from './model';
 
 export class Card {
-  constructor(public suit: CardSuit, public name: CardName) {}
+    constructor(public suit: CardSuit, public name: CardName) {}
 }
