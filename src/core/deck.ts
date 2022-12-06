@@ -4,13 +4,27 @@ import shuffle from 'lodash/shuffle';
 import take from 'lodash/take';
 import values from 'lodash/values';
 
-import { Card } from './card';
-import { CardSuit, CardName } from './model';
+import { CardSuit, CardName, CARD_VALUES, CardValue } from './model';
+
+export class Card {
+  constructor(public suit: CardSuit, public name: CardName) {}
+
+  getValue(): CardValue {
+    return CARD_VALUES[this.name];
+  }
+
+  save() {
+    return {
+      suit: this.suit,
+      name: this.name,
+    };
+  }
+}
 
 export class Deck {
   private readonly cards: Card[];
 
-  constructor() {
+  private constructor() {
     const cards = reduce(
       values(CardSuit),
       (acc, suit) => {
@@ -25,6 +39,10 @@ export class Deck {
     );
 
     this.cards = shuffle(cards);
+  }
+
+  public static create(): Deck {
+    return new Deck();
   }
 
   public deal(count: number): Card[] {

@@ -1,30 +1,52 @@
-import { Card } from './card';
-import { Deck } from './deck';
-import { Hand } from './model';
-
-type PlayerState = 'active' | 'finished' | 'waiting';
-
-interface VisibleHand {
-  inHand(): Hand;
-}
+import find from 'lodash/find';
+import map from 'lodash/map';
+import { Card, Deck } from './deck';
+import { CardValue, GameTurn, PlayerState } from './model';
 
 export class Player {
-  private state: PlayerState;
-  private hand: Card[];
+  private _state: PlayerState = 'initial';
+  private hand: Card[] = [];
 
-  constructor(private deck: Deck) {}
+  private constructor(private deck: Deck) {}
 
-  public draw(): void {
-    this.hand = this.hand.concat(this.deck.deal(1));
+  static create(deck: Deck): Player {
+    return new Player(deck);
   }
 
-  public pass(): void {}
-}
+  state() {
+    return this._state;
+  }
 
-export class Gambler extends Player implements VisibleHand {
-  inHand(): Hand {}
-}
+  draw(): void {
+    this.hand = this.hand.concat(this.deck.deal(1));
 
-export class Dealer extends Player implements VisibleHand {
-  inHand(): Hand {}
+    if (find(this.points(), (pointsSum) => pointsSum >= 21)) {
+      this.pass();
+    }
+  }
+
+  points(): number[] {
+    return this.combineValues(map(this.hand, (card) => card.getValue()));
+  }
+
+  play() {
+    this._state = 'active';
+  }
+
+  pass(): void {
+    this._state = 'finished';
+  }
+
+  wait(): void {
+    this._state = 'waiting';
+  }
+
+  save() {
+    return {
+      state: this.state,
+      hand: this.hand.map((card) => card.save()),
+    };
+  }
+
+  private combineValues(cardValues: CardValue[]): number[] {}
 }
